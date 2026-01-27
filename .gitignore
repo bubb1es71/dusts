@@ -1,0 +1,7 @@
+regtest
+target
+*.redb
+*.sqlite
+*.py
+/data
+*.csv
