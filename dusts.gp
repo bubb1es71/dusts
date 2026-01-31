@@ -2,7 +2,7 @@
 set datafile separator ","
 
 # Define the bin width (e.g., 144 blocks per bin is a day)
-binwidth = 144
+binwidth = 1
 bin(x, width) = width * floor(x / width) + width / 2.0
 
 # Graph Styling
@@ -14,7 +14,7 @@ set boxwidth binwidth
 set grid y
 set xlabel "Block Height"
 set ylabel "Number of Transactions"
-set title "Dust (<= 1000 sats) outputs to victim addresses (> 0.5 BTC)\n{144 block bins }"
+set title "Dust (< 1000 sats) outputs sent to victim addresses (> 0.5 BTC)"
 set key top left
 set size ratio 0.5
 
@@ -40,6 +40,10 @@ set label "Epoch 5 (2024)" at 840000, graph 1.02 center font ",9"
 # ---------------------------------------
 
 # Plotting the data
-# Column 5 is 'height'. We use (1) as the y-value so 'smooth frequency' 
-# sums the 1s for every occurrence in a bin.
-plot 'dusts.csv' using (bin($5, binwidth)):(1) smooth frequency with impulses lc rgb "red" title "TX Count"
+# Column 5 is 'height', Column 7 is 'type'
+# Create cumulative plots for each script type
+plot 'dusts.csv' using (bin($5, binwidth)):(strcol(7) eq "P2SH" ? 1 : 0) smooth cumulative with lines lw 2 lc rgb "red" title "P2SH", \
+     'dusts.csv' using (bin($5, binwidth)):(strcol(7) eq "P2PKH" ? 1 : 0) smooth cumulative with lines lw 2 lc rgb "blue" title "P2PKH", \
+     'dusts.csv' using (bin($5, binwidth)):(strcol(7) eq "P2WPKH" ? 1 : 0) smooth cumulative with lines lw 2 lc rgb "green" title "P2WPKH", \
+     'dusts.csv' using (bin($5, binwidth)):(strcol(7) eq "P2WSH" ? 1 : 0) smooth cumulative with lines lw 2 lc rgb "orange" title "P2WSH", \
+     'dusts.csv' using (bin($5, binwidth)):(strcol(7) eq "P2TR" ? 1 : 0) smooth cumulative with lines lw 2 lc rgb "purple" title "P2TR"
