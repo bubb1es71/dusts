@@ -497,32 +497,82 @@ impl AddressStats {
     }
 
     pub fn p2pkh_dust_percent(&self) -> f64 {
+        if self.p2pkh_victim == 0 {
+            return 0.0;
+        }
         (self.p2pkh_dust as f64 / self.p2pkh_victim as f64) * 100.0
     }
 
     pub fn p2sh_dust_percent(&self) -> f64 {
+        if self.p2sh_victim == 0 {
+            return 0.0;
+        }
         (self.p2sh_dust as f64 / self.p2sh_victim as f64) * 100.0
     }
 
     pub fn p2wpkh_dust_percent(&self) -> f64 {
+        if self.p2wpkh_victim == 0 {
+            return 0.0;
+        }
         (self.p2wpkh_dust as f64 / self.p2wpkh_victim as f64) * 100.0
     }
 
     pub fn p2wsh_dust_percent(&self) -> f64 {
+        if self.p2wsh_victim == 0 {
+            return 0.0;
+        }
         (self.p2wsh_dust as f64 / self.p2wsh_victim as f64) * 100.0
     }
 
     pub fn p2tr_dust_percent(&self) -> f64 {
+        if self.p2tr_victim == 0 {
+            return 0.0;
+        }
         (self.p2tr_dust as f64 / self.p2tr_victim as f64) * 100.0
     }
 }
 
 #[cfg(test)]
-mod test {
-    use crate::decompress_amount;
+mod tests {
+    use super::*;
 
     #[test]
     fn test_decompress_amount() {
         assert_eq!(decompress_amount(0), 0);
+    }
+
+    #[test]
+    fn dust_percent_zero_victims_are_zero() {
+        let stats = AddressStats::default();
+        assert_eq!(stats.p2pkh_dust_percent(), 0.0);
+        assert_eq!(stats.p2sh_dust_percent(), 0.0);
+        assert_eq!(stats.p2wpkh_dust_percent(), 0.0);
+        assert_eq!(stats.p2wsh_dust_percent(), 0.0);
+        assert_eq!(stats.p2tr_dust_percent(), 0.0);
+    }
+
+    #[test]
+    fn dust_percent_computes_correctly_for_nonzero_victims() {
+        let mut stats = AddressStats::default();
+
+        stats.p2pkh_victim = 4;
+        stats.p2pkh_dust = 1;
+        assert_eq!(stats.p2pkh_dust_percent(), 25.0);
+
+        stats.p2sh_victim = 5;
+        stats.p2sh_dust = 2;
+        assert_eq!(stats.p2sh_dust_percent(), 40.0);
+
+        stats.p2wpkh_victim = 2;
+        stats.p2wpkh_dust = 1;
+        assert_eq!(stats.p2wpkh_dust_percent(), 50.0);
+
+        stats.p2wsh_victim = 10;
+        stats.p2wsh_dust = 0;
+        assert_eq!(stats.p2wsh_dust_percent(), 0.0);
+
+        stats.p2tr_victim = 3;
+        stats.p2tr_dust = 3;
+        assert_eq!(stats.p2tr_dust_percent(), 100.0);
     }
 }
