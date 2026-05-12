@@ -2,7 +2,7 @@
 name = "dusts"
 version = "0.1.0"
 edition = "2024"
-authors = ["bubb1es71 <bubb1es71@proton.me>"]
+authors = ["dusts developers"]
 license = "MIT"
 
 [dependencies]
